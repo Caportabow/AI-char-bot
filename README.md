@@ -41,6 +41,7 @@ pip install -r requirements.txt
 ### 5. Configure the bot 🔑:
 Copy .env.example to .env:
 ```bash
+cd resources
 cp .env.example .env
 ```
 Open .env and fill in the required information.
