@@ -11,10 +11,10 @@ USERNAME = config['TELEGRAM_BOT_USERNAME']
 OPENROUTER_TOKEN = config['OPENROUTER_TOKEN']
 OPENROUTER_AI_MODEL = config['OPENROUTER_AI_MODEL']
 CHAR_NAME = config['CHARACTER_NAME']
-MAIN_MSG = config['MAIN_MSG']
-ERROR_MSG = config['ERROR_MSG']
-STICKERS_MSG = config['STICKERS_MSG']
-LIMIT_EXCEEDED_MSG = config['LIMIT_EXCEEDED_MSG']
+MAIN_MSG = str(config['MAIN_MSG'])
+ERROR_MSG = str(config['ERROR_MSG'])
+STICKERS_MSG = str(config['STICKERS_MSG'])
+LIMIT_EXCEEDED_MSG = str(config['LIMIT_EXCEEDED_MSG'])
 
 # Function to costruct the prompt to AI
 def construct_prompt(message) -> str:
@@ -37,9 +37,9 @@ def construct_prompt(message) -> str:
             text = text.replace(f"@{USERNAME}", f"{CHAR_NAME},")
 
         if not msg.from_user.username == USERNAME: chat_history.append(f"User ({name}): {text}")
-        else: chat_history.append(f"{CHAR_NAME} (You): {text}")
+        else: chat_history.append(f"{CHAR_NAME}: {text}")
     
-    chat_history.append(f"{CHAR_NAME} (You): ")
+    chat_history.append(f"{CHAR_NAME}: ")
 
     stickers = [os.path.splitext(f)[0] for f in os.listdir("resources/stickers") if f.endswith(".webp")]
 

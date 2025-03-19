@@ -13,6 +13,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import Message
 
 # Load APIs
+print(OPENROUTER_AI_MODEL, OPENROUTER_TOKEN)
 SHOTO = OpenRouterAPI(model=OPENROUTER_AI_MODEL, token=OPENROUTER_TOKEN)
 dp = Dispatcher(skip_updates=True)
 
