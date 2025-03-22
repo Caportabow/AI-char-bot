@@ -1,8 +1,8 @@
-# AI Telegram Bot 🤖💬
+# Сharacter AI Telegram Bot
 
 ## Project Description 📖
 
-This is a **Telegram Bot** built with **aiogram** and **OpenRouter** that allows you to interact with a custom AI character. Unlike other similar bots, this bot has no censorship, is fully modular, and customizable. It's highly efficient, lightweight in terms of hosting requirements, and doesn’t overload the system. 🌍⚡
+This is a **Telegram Bot** built with **aiogram** and **OpenAI** that allows you to interact with a custom AI character. Unlike other similar bots, this bot has no censorship(Only when using OpenRouter as provider), is fully modular, and customizable. It's highly efficient, lightweight in terms of hosting requirements, and doesn’t overload the system. 🌍⚡
 
 The goal of this project is to provide a fun and engaging AI character interaction experience for users, with no limitations, allowing complete freedom in how you interact with the character. Additionally, the bot is optimized to keep hosting costs extremely low. 💸
 

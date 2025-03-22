@@ -2,8 +2,8 @@ import asyncio
 import logging
 import sys
 
-from scripts.api import OpenRouterAPI
-from scripts.tools import custom_filter, TOKEN, OPENROUTER_TOKEN, OPENROUTER_AI_MODEL, ERROR_MSG
+from scripts.api import load_api as LLM_API
+from scripts.tools import custom_filter, TOKEN, ERROR_MSG
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import FSInputFile
@@ -13,9 +13,8 @@ from aiogram.enums import ParseMode
 from aiogram.types import Message
 
 # Load APIs
-print(OPENROUTER_AI_MODEL, OPENROUTER_TOKEN)
-SHOTO = OpenRouterAPI(model=OPENROUTER_AI_MODEL, token=OPENROUTER_TOKEN)
-dp = Dispatcher(skip_updates=True)
+SHOTO = LLM_API()
+dp = Dispatcher()
 
 @dp.message(F.func(lambda message: custom_filter(message)))
 async def message_handler(message: Message, bot: Bot) -> None:
@@ -30,9 +29,10 @@ async def message_handler(message: Message, bot: Bot) -> None:
         await bot.send_message(message.chat.id, ERROR_MSG.format(error=e), reply_to_message_id=message.message_id)
 
 async def main() -> None:
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML), skip_updates=True)
+    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    await bot.delete_webhook(drop_pending_updates=True)
 
-    await dp.start_polling(bot, skip_updates=True)
+    await dp.start_polling(bot)
     logging.info("Bot started polling.")
 
 
