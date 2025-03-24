@@ -13,7 +13,7 @@ class LLM_API:
     async def get_response(self, message) -> str:
         completion = await self.client.chat.completions.create(
             model = self.model,
-            messages = construct_prompt(message, openai_api_format=True),
+            messages = construct_prompt(message, openai_vision_api_format=True),
         )
         if not completion.choices: return LIMIT_EXCEEDED_MSG, False
         response = completion.choices[0].message.content

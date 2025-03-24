@@ -20,7 +20,7 @@ STICKERS_MSG = str(config['STICKERS_MSG'])
 LIMIT_EXCEEDED_MSG = str(config['LIMIT_EXCEEDED_MSG'])
 
 # Function to costruct the prompt to AI
-def construct_prompt(message, openai_api_format=False) -> str:
+def construct_prompt(message, openai_text_api_format=False, openai_vision_api_format=False) -> str:
     """Construct the prompt to AI"""
 
     def scrape_message_text(message) -> str:
@@ -58,12 +58,17 @@ def construct_prompt(message, openai_api_format=False) -> str:
     stickers_msg = STICKERS_MSG.format(stickers=", ".join(stickers), random_sticker=random.choice(stickers)) if stickers else ""
     prompt = "\n\n".join(chat_history)
 
-    if not openai_api_format: return f"{system_prompt} {stickers_msg}\n\n{prompt}"
-    
-    return [
+    if openai_text_api_format: return [
         {"role": "system", "content": f"{system_prompt} {stickers_msg}"},
         {"role": "user", "content": prompt},
     ]
+
+    if openai_vision_api_format: return [
+        {"role": "system", "content": [{"type": "text", "text": f"{system_prompt} {stickers_msg}"}]},
+        {"role": "user", "content": [{"type": "text", "text": prompt}]},
+    ]
+    
+    return f"{system_prompt} {stickers_msg}\n\n{prompt}" 
 
 # Function to format the response from AI
 def format_message(response) -> str:
@@ -83,7 +88,6 @@ def format_message(response) -> str:
             for part in parts:
                 namings.append(f"{part}: ")
             
-            print(namings)
             return namings
         
         namings = generate_namings(name)
