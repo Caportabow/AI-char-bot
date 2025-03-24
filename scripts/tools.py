@@ -99,6 +99,8 @@ def format_message(response) -> str:
     formatted_message = re.sub(r'\[(.*?)\]', r'<i>\1</i>', formatted_message)  # [text] -> <i>text</i>
     formatted_message = re.sub(r'\((.*?)\)', r'<i>\1</i>', formatted_message)  # (text) -> <i>text</i>
     formatted_message = re.sub(r'\/\/(.*?)\/\/', r'<i>\1</i>', formatted_message)  # //text// -> <i>text</i>
+    formatted_message = re.sub(r'\{(.*?)\}', r'<i>\1</i>', formatted_message)  # {text} -> <i>text</i>
+
 
     formatted_message = remove_namings(formatted_message, CHAR_NAME)
     
