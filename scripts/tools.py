@@ -1,26 +1,40 @@
 import re
 import random
 import os
+import requests
+import json
 from dotenv import dotenv_values
 
 # Load environment variables
 config = dotenv_values("resources/.env")
 TOKEN = config['TELEGRAM_BOT_TOKEN']
-CHAT_ID = int(config['TELEGRAM_CHAT_ID'])
-USERNAME = config['TELEGRAM_BOT_USERNAME']
+CHAT_ID = int(config['TELEGRAM_CHAT_ID']) if config['TELEGRAM_CHAT_ID'].lstrip('-').isdigit() else None
 OPENROUTER_TOKEN = config['OPENROUTER_TOKEN']
 API_URL = config['API_URL']
 AI_MODEL = config['AI_MODEL']
-CHAR_NAME = config['CHARACTER_NAME']
-MAIN_MSG = str(config['MAIN_MSG'])
+AI_MODEL_IS_VISION = True if config['AI_MODEL_TYPE'] == "vision" else False
 PROMPT_CONSTRUCTOR_MEDIA = str(config['PROMPT_CONSTRUCTOR_MEDIA'])
 PROMPT_CONSTRUCTOR_STICKER = str(config['PROMPT_CONSTRUCTOR_STICKER'])
 ERROR_MSG = str(config['ERROR_MSG'])
-STICKERS_MSG = str(config['STICKERS_MSG'])
 LIMIT_EXCEEDED_MSG = str(config['LIMIT_EXCEEDED_MSG'])
 
+r = requests.get(f"https://api.telegram.org/bot{TOKEN}/getMe", timeout=5)
+r.raise_for_status()  # Will throw and excheption on HTTP error (4xx, 5xx)
+data = r.json()   
+if not data.get("ok"): raise Exception(f"Error from Telegram API: {data}")
+USERNAME = data['result']['username']
+
+with open("resources/character.json", "r") as file:
+    data = json.load(file)
+    stickers = [os.path.splitext(f)[0] for f in os.listdir("resources/stickers") if f.endswith(".webp")]
+
+    PROMPT = data['ADVANCED']['MAIN_MSG'].format(character=f"\"{f"{data['BASIC']['PERSONALITY']} {data['BASIC']['SCENARIO']}"}\".")
+    STICKERS_MSG = f" {data['ADVANCED']['STICKERS_MSG']}".format(stickers=", ".join(stickers), random_sticker=random.choice(stickers)) if stickers else ""
+    CHAR_NAME = data['BASIC']['FULL_NAME']
+    
+
 # Function to costruct the prompt to AI
-def construct_prompt(message, openai_text_api_format=False, openai_vision_api_format=False) -> str:
+def construct_prompt(message, openai_vision_api_format=False) -> str:
     """Construct the prompt to AI"""
 
     def scrape_message_text(message) -> str:
@@ -51,24 +65,19 @@ def construct_prompt(message, openai_text_api_format=False, openai_vision_api_fo
     
     chat_history.append(f"{CHAR_NAME}: ")
 
-    stickers = [os.path.splitext(f)[0] for f in os.listdir("resources/stickers") if f.endswith(".webp")]
-
-    with open("resources/system-prompt.txt", "r", encoding="utf-8") as file:
-        system_prompt = MAIN_MSG.format(character=f"\"{file.read()}\".")
-    stickers_msg = STICKERS_MSG.format(stickers=", ".join(stickers), random_sticker=random.choice(stickers)) if stickers else ""
     prompt = "\n\n".join(chat_history)
 
-    if openai_text_api_format: return [
-        {"role": "system", "content": f"{system_prompt} {stickers_msg}"},
-        {"role": "user", "content": prompt},
-    ]
-
     if openai_vision_api_format: return [
-        {"role": "system", "content": [{"type": "text", "text": f"{system_prompt} {stickers_msg}"}]},
+        {"role": "system", "content": [{"type": "text", "text": f"{PROMPT} {STICKERS_MSG}"}]},
         {"role": "user", "content": [{"type": "text", "text": prompt}]},
     ]
-    
-    return f"{system_prompt} {stickers_msg}\n\n{prompt}" 
+
+    # return f"{system_prompt} {stickers_msg}\n\n{prompt}" alt in case model don't support openai format
+
+    return [
+        {"role": "system", "content": f"{PROMPT} {STICKERS_MSG}"},
+        {"role": "user", "content": prompt},
+    ]
 
 # Function to format the response from AI
 def format_message(response) -> str:
@@ -117,7 +126,7 @@ def format_message(response) -> str:
 # Custom filter for messages
 def custom_filter(message) -> bool:
     """Custom filter for aiogram, to handle cases when bot needs to answer to them"""
-    if message.chat.id != CHAT_ID:
+    if CHAT_ID and message.chat.id != CHAT_ID:
         return False
     
     if not message.text and not message.caption:
@@ -128,8 +137,8 @@ def custom_filter(message) -> bool:
         return True
     
     # Check if the bot username is mentioned
-    if f"@{config['TELEGRAM_BOT_USERNAME']}" in message.text:
+    if f"@{USERNAME}" in message.text:
         return True
     
     # Check if the message is a reply to a message from the bot
-    return message.reply_to_message and message.reply_to_message.from_user.username == config['TELEGRAM_BOT_USERNAME']
+    return message.reply_to_message and message.reply_to_message.from_user.username == USERNAME

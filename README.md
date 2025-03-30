@@ -49,11 +49,7 @@ Open .env and fill in the required information.
 *If you want the bot to use stickers, name each sticker with a short description, convert them to .webp format, and place them in the resources/stickers folder.* 🖼️
 
 ### 6. Configure the AI Character bot uses 📝:
-Copy system-prompt.txt.example to system-prompt.txt:
-```bash
-cp system-prompt.txt.example system-prompt.txt
-```
-*Find any AI character card online, paste its contents there, and save it as system-prompt.txt.*
+*Configure default variables inside of resources/character.json (make sure to keep variables in ADVANCED) or use default one (Russian-speaking Todoroki Shoto from MHA)*
 
 ### 7. Run the bot 🚀:
 Now you can run the bot with the following command:

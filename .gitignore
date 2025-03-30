@@ -4,5 +4,4 @@ venv/
 resources/stickers/*
 !resources/stickers
 resources/.env
-resources/system-prompt.txt
 *.pyc
