@@ -28,7 +28,8 @@ with open("resources/character.json", "r") as file:
     data = json.load(file)
     stickers = [os.path.splitext(f)[0] for f in os.listdir("resources/stickers") if f.endswith(".webp")]
 
-    PROMPT = data['ADVANCED']['MAIN_MSG'].format(character=f"\"{f"{data['BASIC']['PERSONALITY']} {data['BASIC']['SCENARIO']}"}\".")
+    character = f"\"{data['BASIC']['PERSONALITY']} {data['BASIC']['SCENARIO']}\"."
+    PROMPT = data['ADVANCED']['MAIN_MSG'].format(character=character)
     STICKERS_MSG = f" {data['ADVANCED']['STICKERS_MSG']}".format(stickers=", ".join(stickers), random_sticker=random.choice(stickers)) if stickers else ""
     CHAR_NAME = data['BASIC']['FULL_NAME']
     
