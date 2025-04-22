@@ -3,7 +3,7 @@ import logging
 import sys
 
 from scripts.api import load_api as LLM_API
-from scripts.tools import custom_filter, TOKEN, ERROR_MSG
+from scripts.tools import custom_filter, TOKEN, ERROR_MSG, LIMIT_EXCEEDED_MSG
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import FSInputFile
@@ -22,6 +22,12 @@ async def message_handler(message: Message, bot: Bot) -> None:
     try:
         async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
             ans, stick = await SHOTO.get_response(message)
+
+            if not ans:
+                if message.reply_to_message and int(message.reply_to_message.from_user.id) == int((await bot.get_me()).id) or \
+                    f"@{(await bot.get_me()).username}" in message.text:
+                    await message.answer(LIMIT_EXCEEDED_MSG)
+                    return
 
             msg = await bot.send_message(message.chat.id, ans, reply_to_message_id=message.message_id)
             if stick: await bot.send_sticker(message.chat.id, FSInputFile(stick), reply_to_message_id=msg.message_id)

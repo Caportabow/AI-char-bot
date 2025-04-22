@@ -1,6 +1,6 @@
 
 from openai import AsyncOpenAI
-from scripts.tools import format_message, construct_prompt, LIMIT_EXCEEDED_MSG, OPENROUTER_TOKEN, AI_MODEL, AI_MODEL_IS_VISION, API_URL
+from scripts.tools import format_message, construct_prompt, OPENROUTER_TOKEN, AI_MODEL, AI_MODEL_IS_VISION, API_URL
 
 class LLM_API:
     def __init__(self, api_url, token, model):
@@ -15,7 +15,7 @@ class LLM_API:
             model = self.model,
             messages = construct_prompt(message, openai_vision_api_format=AI_MODEL_IS_VISION),
         )
-        if not completion.choices: return LIMIT_EXCEEDED_MSG, False
+        if not completion.choices: return False, False
         response = completion.choices[0].message.content
         
         # Format the response
